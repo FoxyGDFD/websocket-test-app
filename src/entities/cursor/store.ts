@@ -1,15 +1,26 @@
-import { proxy } from 'valtio';
+import { derive } from 'derive-valtio';
+import { proxyMap } from 'valtio/utils';
 
 import type { CursorData, UserId } from './types';
 
 type CursorStore = {
-  map: Map<UserId, CursorData>;
+  map: [UserId, CursorData][];
+  count: number;
 };
 
-export const cursors = proxy<CursorStore>({ map: new Map([]) });
+const cursors = proxyMap<UserId, CursorData>([]);
+export const cursorActions = {
+  load: (map: CursorStore['map']) => {
+    cursors.clear();
+    map.forEach(([key, value]) => {
+      cursors.set(key, value);
+    });
+  },
+  updateSingle: (id: UserId, data: CursorData) => cursors.set(id, data),
+  remove: (id: UserId) => cursors.delete(id),
+};
 
-export const loadCursors = (map: CursorStore['map']) => (cursors.map = map);
-export const updateCursor = (id: UserId, data: CursorData) =>
-  cursors.map.set(id, data);
-export const removeCursor = (id: UserId) => cursors.map.delete(id);
-export const cursorsToArray = () => Array.from(cursors.map);
+export const cursorsStore = derive({
+  userCount: (get) => get(cursors).size,
+  map: (get) => Array.from(get(cursors).entries()),
+});
