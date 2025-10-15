@@ -1,13 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
+import CursorTracker from '@widgets/CursorTracker';
 
 export const Route = createFileRoute('/')({
-  component: Index,
+  component: IndexPage,
 });
 
-function Index() {
-  return (
-    <div>
-      <h3>Hello world!</h3>
-    </div>
-  );
+export default function IndexPage() {
+  return <CursorTracker />;
 }
